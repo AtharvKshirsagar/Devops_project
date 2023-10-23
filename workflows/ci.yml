@@ -1,0 +1,42 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.x
+
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+
+    - name: Linting
+      run: pylint .  # Use your preferred linter
+
+    - name: Unit Tests
+      run: pytest  # Adjust the test command as needed
+
+    - name: Integration Tests
+      run: python -m pytest tests/integration
+
+    - name: Code Coverage
+      run: coverage run -m pytest
+      continue-on-error: true
+
+    - name: Upload Coverage Report
+      if: always()
+      run: coverage xml
